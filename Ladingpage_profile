@@ -1,0 +1,315 @@
+```html
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zhara Fitria - Profil & Portfolio Fun Zone ✨</title>
+
+    <!-- PWA Primary Meta Tags -->
+    <meta name="theme-color" content="#FF8ECA">
+    <meta name="description" content="Profil & Portfolio Zhara Fitria - Siswi RPL SMK Cefada. Pengembang Web, Game Interaktif & Penyanyi!">
+    <link rel="apple-touch-icon" href="https://api.iconify.design/twemoji:star.svg">
+
+    <!-- Dynamic PWA Manifest -->
+    <link rel="manifest" id="pwa-manifest">
+
+    <!-- Google Fonts: Fredoka & Quicksand for cute playful look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        candyPink: '#FF8ECA',
+                        candyPurple: '#B19FFB',
+                        candyBlue: '#70D6FF',
+                        candyYellow: '#FFD670',
+                        candyGreen: '#A8F0E5',
+                        candyOrange: '#FF9F1C',
+                        darkBg: '#1A102F',
+                        darkCard: '#2A1B4E'
+                    },
+                    fontFamily: {
+                        sans: ['Fredoka', 'Quicksand', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-4deg); }
+            50% { transform: rotate(4deg); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 142, 202, 0.6); }
+            50% { box-shadow: 0 0 30px rgba(112, 214, 255, 0.9); }
+        }
+
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        .animate-float-delayed { animation: float 5s ease-in-out 1.5s infinite; }
+        .animate-bounce-subtle { animation: bounce-subtle 2s infinite; }
+        .animate-wiggle { animation: wiggle 1s infinite alternate ease-in-out; }
+        .pulse-glow { animation: pulse-glow 3s infinite; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFE5EC;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF8ECA;
+            border-radius: 10px;
+            border: 3px solid #FFE5EC;
+        }
+
+        .bubble-btn {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .bubble-btn:hover {
+            transform: scale(1.08) translateY(-3px);
+        }
+        .bubble-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Sparkle cursor particle effect styling */
+        .sparkle-particle {
+            position: fixed;
+            pointer-events: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            z-index: 9999;
+            animation: fadeOut 0.8s linear forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.2) translateY(20px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-pink-100 via-purple-50 to-blue-100 text-slate-800 font-sans min-h-screen transition-colors duration-500 overflow-x-hidden selection:bg-pink-300 selection:text-pink-900" id="app-body">
+
+    <!-- Top Floating Navbar -->
+    <nav class="fixed top-3 left-1/2 -translate-x-1/2 w-[92%] max-w-5xl z-50 bg-white/80 dark:bg-darkCard/90 backdrop-blur-md border-4 border-pink-300 dark:border-purple-500 rounded-full px-4 py-2 shadow-lg flex items-center justify-between transition-all duration-300">
+        <a href="#hero" class="flex items-center gap-2 group">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-400 to-yellow-300 flex items-center justify-center text-white text-xl font-bold shadow-md group-hover:rotate-12 transition-transform">
+                🎤
+            </div>
+            <span class="font-extrabold text-xl tracking-wide bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 bg-clip-text text-transparent">
+                Zhara Fitria
+            </span>
+        </a>
+
+        <!-- Desktop Menu Links -->
+        <div class="hidden md:flex items-center gap-6 font-bold text-slate-700 dark:text-pink-200 text-sm">
+            <a href="#about" class="hover:text-pink-500 transition-colors flex items-center gap-1">✨ Profil</a>
+            <a href="#skills" class="hover:text-pink-500 transition-colors flex items-center gap-1">🚀 Skill</a>
+            <a href="#projects" class="hover:text-pink-500 transition-colors flex items-center gap-1">🎮 Proyek</a>
+            <a href="#game-zone" class="hover:text-pink-500 transition-colors flex items-center gap-1">🧮 Game Berhitung</a>
+            <a href="#contact" class="hover:text-pink-500 transition-colors flex items-center gap-1">💌 Kontak</a>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="flex items-center gap-2">
+            <!-- PWA Install Button -->
+            <button id="pwa-install-btn" class="hidden bubble-btn bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-3 py-1.5 rounded-full text-xs font-black shadow-md flex items-center gap-1 border-2 border-yellow-500">
+                <i class="fa-solid fa-download animate-bounce"></i> Install App
+            </button>
+
+            <!-- Sound Effect Toggle -->
+            <button id="sound-toggle" onclick="toggleAudioSynth()" class="p-2 rounded-full bg-pink-100 dark:bg-purple-900 text-pink-600 dark:text-pink-300 hover:scale-110 transition-transform border-2 border-pink-300" title="Suara Efek">
+                <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+            </button>
+
+            <!-- Mobile Hamburger Button -->
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-full bg-pink-200 text-pink-700 focus:outline-none">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden fixed top-20 left-1/2 -translate-x-1/2 w-[90%] bg-white dark:bg-darkCard border-4 border-pink-300 rounded-2xl p-5 shadow-2xl z-40 flex-col gap-3 font-bold text-center text-slate-800 dark:text-white">
+        <a href="#about" onclick="toggleMobileMenu()" class="p-2 hover:bg-pink-100 dark:hover:bg-purple-800 rounded-xl">✨ Profil & Hobi</a>
+        <a href="#skills" onclick="toggleMobileMenu()" class="p-2 hover:bg-pink-100 dark:hover:bg-purple-800 rounded-xl">🚀 Keahlian Skill</a>
+        <a href="#projects" onclick="toggleMobileMenu()" class="p-2 hover:bg-pink-100 dark:hover:bg-purple-800 rounded-xl">🎮 Proyek Game</a>
+        <a href="#game-zone" onclick="toggleMobileMenu()" class="p-2 hover:bg-pink-100 dark:hover:bg-purple-800 rounded-xl">🧮 Main Game Berhitung</a>
+        <a href="#contact" onclick="toggleMobileMenu()" class="p-2 hover:bg-pink-100 dark:hover:bg-purple-800 rounded-xl">💌 Hubungi Zhara</a>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="pt-28 pb-16 px-4 max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10 relative">
+        <!-- Floating Decorative Icons -->
+        <div class="absolute top-20 left-4 text-3xl animate-float">🎵</div>
+        <div class="absolute top-40 right-10 text-4xl animate-float-delayed">⭐</div>
+        <div class="absolute bottom-10 left-1/3 text-3xl animate-wiggle">🎮</div>
+
+        <!-- Left Text Content -->
+        <div class="flex-1 text-center md:text-left z-10">
+            <div class="inline-flex items-center gap-2 bg-white/90 border-2 border-pink-400 px-4 py-1.5 rounded-full text-pink-600 font-bold text-sm mb-4 shadow-sm animate-bounce-subtle">
+                <span>👋 Halo Semuanya! Welcome to My World</span>
+            </div>
+            
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white leading-tight mb-4">
+                Saya <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-sky-400 bg-clip-text text-transparent underline decoration-wavy decoration-yellow-400">ZHARA FITRIA</span> ✨
+            </h1>
+
+            <p class="text-lg sm:text-xl font-semibold text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
+                Siswi <span class="bg-yellow-200 dark:bg-yellow-600 dark:text-white px-2 py-0.5 rounded-lg border border-yellow-400">SMK Cefada</span> Jurusan <span class="bg-blue-200 dark:bg-blue-600 dark:text-white px-2 py-0.5 rounded-lg border border-blue-400">Rekayasa Perangkat Lunak (RPL)</span>. 
+                Suka ngoding aplikasi, bikin game edukasi interaktif, dan hobi <span class="text-pink-500 font-extrabold">bernyanyi 🎤🎶</span>!
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                <a href="#game-zone" class="bubble-btn bg-gradient-to-r from-pink-500 to-purple-500 text-white font-extrabold text-base px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-pink-300/50 border-2 border-white flex items-center gap-2">
+                    <i class="fa-solid fa-gamepad text-xl"></i> Main Game Berhitung
+                </a>
+                <a href="https://github.com/zahfarfitria-bit/Zahrafitria-" target="_blank" class="bubble-btn bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-base px-6 py-3.5 rounded-2xl shadow-md border-2 border-purple-300 flex items-center gap-2">
+                    <i class="fa-brands fa-github text-xl text-purple-600"></i> GitHub Proyek
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Photo / Avatar Frame -->
+        <div class="relative z-10 flex flex-col items-center">
+            <!-- Glowing Photo Container -->
+            <div class="relative w-64 h-64 sm:w-72 sm:h-72 rounded-3xl bg-gradient-to-tr from-pink-400 via-yellow-300 to-sky-400 p-3 shadow-2xl pulse-glow transform rotate-2 hover:rotate-0 transition-transform duration-300">
+                <div class="w-full h-full bg-white rounded-2xl overflow-hidden relative border-4 border-white flex items-center justify-center group">
+                    <!-- Profile Photo Image -->
+                    <img id="user-photo" src="https://webschool.id/siswa/uploads/siswa_1788921492_adba57af.jpg" alt="Foto Zhara Fitria" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    
+                    <!-- Music badge on photo -->
+                    <div class="absolute bottom-2 right-2 bg-pink-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 border-2 border-white">
+                        🎤 Singer & Dev
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Photo Change Tool -->
+            <div class="mt-4 flex items-center gap-2">
+                <label for="photo-upload" class="cursor-pointer bg-white dark:bg-darkCard border-2 border-pink-400 text-pink-600 dark:text-pink-300 hover:bg-pink-50 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1 transition-colors">
+                    <i class="fa-solid fa-camera"></i> Ganti Foto Asli
+                </label>
+                <input type="file" id="photo-upload" accept="image/*" class="hidden" onchange="previewPhoto(event)">
+                
+                <button onclick="resetPhoto()" class="bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 text-slate-700 dark:text-slate-200 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                    Reset Avatar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT ME & HOBBY SECTION -->
+    <section id="about" class="py-16 px-4 max-w-5xl mx-auto">
+        <div class="bg-white/90 dark:bg-darkCard/90 rounded-3xl p-6 sm:p-10 border-4 border-sky-300 shadow-xl relative overflow-hidden">
+            <!-- Decorative Background Circle -->
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-100 dark:bg-sky-900/30 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="text-center mb-8">
+                <span class="bg-sky-100 text-sky-700 text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full border border-sky-300">Biodata Singkat</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mt-2">
+                    Tentang <span class="text-pink-500">Zhara Fitria</span> 🌟
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <!-- Info Cards Grid -->
+                <div class="space-y-4">
+                    <div class="bg-pink-50 dark:bg-purple-950/50 p-4 rounded-2xl border-2 border-pink-200 flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-pink-400 text-white flex items-center justify-center text-2xl shrink-0 shadow-md">
+                            🏫
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 dark:text-pink-200 text-lg">Sekolah & Jurusan</h3>
+                            <p class="text-slate-600 dark:text-slate-300 font-medium">SMK Cefada — Rekayasa Perangkat Lunak (RPL)</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Belajar pemrograman web, basis data, dan pembuatan aplikasi game interaktif.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-purple-50 dark:bg-purple-950/50 p-4 rounded-2xl border-2 border-purple-200 flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-400 text-white flex items-center justify-center text-2xl shrink-0 shadow-md">
+                            🎤
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 dark:text-purple-200 text-lg">Hobi Favorit</h3>
+                            <p class="text-slate-600 dark:text-slate-300 font-medium">Bernyanyi & Mengembangkan Game Fun</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Suka bernyanyi di waktu luang dan mengekspresikan kreativitas lewat musik & coding!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Mini Piano Keyboard widget for Singing Hobby -->
+                <div class="bg-gradient-to-br from-yellow-100 to-pink-100 dark:from-slate-800 dark:to-purple-900 p-5 rounded-2xl border-3 border-yellow-300 shadow-inner flex flex-col items-center">
+                    <div class="text-center mb-3">
+                        <span class="font-bold text-sm text-slate-800 dark:text-yellow-300">🎹 Piano Mini Zhara - Coba Bunyikan!</span>
+                        <p class="text-xs text-slate-600 dark:text-slate-400">Klik tombol nada di bawah untuk bermain musik sederhana:</p>
+                    </div>
+
+                    <!-- Piano Keys Container -->
+                    <div class="flex gap-1.5 sm:gap-2 justify-center my-2">
+                        <button onclick="playNote(261.63, 'Do')" class="bubble-btn bg-white hover:bg-pink-100 text-slate-800 font-extrabold w-10 sm:w-12 h-24 rounded-b-xl border-2 border-slate-300 shadow flex flex-col justify-end pb-2 items-center text-xs">Do</button>
+                        <button onclick="playNote(293.66, 'Re')" class="bubble-btn bg-white hover:bg-pink-100 text-slate-800 font-extrabold w-10 sm:w-12 h-24 rounded-b-xl border-2 border-slate-300 shadow flex flex-col justify-end pb-2 items-center text-xs">Re</button>
+                        <button onclick="playNote(329.63, 'Mi')" class="bubble-btn bg-white hover:bg-pink-100 text-slate-800 font-extrabold w-10 sm:w-12 h-24 rounded-b-xl border-2 border-slate-300 shadow flex flex-col justify-end pb-2 items-center text-xs">Mi</button>
+                        <button onclick="playNote(349.23, 'Fa')" class="bubble-btn bg-white hover:bg-pink-100 text-slate-800 font-extrabold w-10 sm:w-12 h-24 rounded-b-xl border-2 border-slate-300 shadow flex flex-col justify-end pb-2 items-center text-xs">Fa</button>
+                        <button onclick="playNote(392.00, 'Sol')" class="bubble-btn bg-white hover:bg-pink-100 text-slate-800 font-extrabold w-10 sm:w-12 h-24 rounded-b-xl border-2 border-slate-300 shadow flex flex-col justify-end pb-2 items-center text-xs">Sol</button>
+                        <button onclick="playNote(440.00, 'La')" class="bubble-btn bg-white hover:bg-pink-100 text-slate-800 font-extrabold w-10 sm:w-12 h-24 rounded-b-xl border-2 border-slate-300 shadow flex flex-col justify-end pb-2 items-center text-xs">La</button>
+                        <button onclick="playNote(493.88, 'Si')" class="bubble-btn bg-white hover:bg-pink-100 text-slate-800 font-extrabold w-10 sm:w-12 h-24 rounded-b-xl border-2 border-slate-300 shadow flex flex-col justify-end pb-2 items-center text-xs">Si</button>
+                    </div>
+                    <span id="note-played-display" class="h-6 text-xs font-extrabold text-pink-600 dark:text-pink-300 animate-pulse mt-1">Tekan tuts piano di atas 🎶</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SKILLS SECTION -->
+    <section id="skills" class="py-16 px-4 max-w-5xl mx-auto">
+        <div class="text-center mb-10">
+            <span class="bg-pink-100 text-pink-700 text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full border border-pink-300">Keahlian RPL</span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mt-2">
+                Skill & Teknologi <span class="text-purple-500">Zhara</span> 🚀
+            </h2>
+            <p class="text-slate-600 dark:text-slate-300 text-sm mt-1">Bahasa Pemrograman dan Framework yang telah dipelajari di jurusan RPL</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <!-- Skill Card 1: Laravel -->
+            <div class="bg-white dark:bg-darkCard p-4 rounded-2xl border-3 border-red-300 shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1 text-center group">
+                <div class="w-14 h-14 mx-auto mb-2 rounded-xl bg-red-100 text-red-500 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+                    <i class="fa-brands fa-laravel"></i>
+                </div>
+                <h3 class="font-extrabold text-slate-800 dark:text-white">Laravel</h3>
+                <span class="text-xs text-slate-500 dark:text-slate-400">Web Framework</span>
+                <div class="w-full bg-slate-200 h-2.5 rounded-full mt-2 overflow-hidden">
+                    <div class="bg-red-500 h-full rounded-full w-[85%]"></div>
+                </div>
+            </div>
