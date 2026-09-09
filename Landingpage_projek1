@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zahra Fitria - Cafe Rush & POS (XI.B RPL SMK Cefada)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { background: #0F0C20; color: #F1F5F9; font-family: system-ui, sans-serif; }
+        .tab-act { background: linear-gradient(135deg, #FF69B4, #8A2BE2) !important; color: #FFF !important; }
+        .btn-act { transition: all 0.2s; } .btn-act:hover { transform: translateY(-2px); } .btn-act:active { transform: scale(0.96); }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #FF69B4; border-radius: 6px; }
+        @media print { body * { visibility: hidden; } #receipt-print, #receipt-print * { visibility: visible; } #receipt-print { position: absolute; left: 0; top: 0; width: 100%; color: #000; } }
+    </style>
+</head>
+<body class="min-h-screen relative overflow-x-hidden">
+
+    <div id="toast-box" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur border-b border-pink-500/30 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img id="hdr-img" src="https://webschool.id/siswa/uploads/siswa_1788926230_219a3380.jpg" class="w-10 h-10 rounded-full border border-pink-400 object-cover" onerror="this.src='https://placehold.co/100/FF69B4/FFF?text=Zahra'">
+                <div>
+                    <h1 class="font-black text-base bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">ZAHRA FITRIA</h1>
+                    <p class="text-[10px] font-bold text-slate-400"><span class="text-pink-400">SMK CEFADA</span> • XI.B RPL</p>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex gap-1.5 bg-slate-950/80 p-1 rounded-xl text-xs font-bold text-slate-300">
+                <button onclick="tab('game')" id="nav-game" class="tab-btn tab-act px-3 py-1.5 rounded-lg">🎮 Cafe Game</button>
+                <button onclick="tab('pos')" id="nav-pos" class="tab-btn px-3 py-1.5 rounded-lg">☕ POS Kasir</button>
+                <button onclick="tab('music')" id="nav-music" class="tab-btn px-3 py-1.5 rounded-lg">🎤 Studio Musik</button>
+                <button onclick="tab('profile')" id="nav-profile" class="tab-btn px-3 py-1.5 rounded-lg">👩‍🎓 Profil</button>
+            </nav>
+
+            <button onclick="toggleMobile()" class="md:hidden p-2 text-pink-400"><i class="fa-solid fa-bars text-lg"></i></button>
+        </div>
+
+        <div id="mob-nav" class="hidden md:hidden mt-2 pt-2 border-t border-slate-800 flex flex-col gap-1 text-xs font-bold">
+            <button onclick="tab('game');toggleMobile()" class="p-2 bg-slate-800 rounded-lg text-left">🎮 Cafe Game</button>
+            <button onclick="tab('pos');toggleMobile()" class="p-2 bg-slate-800 rounded-lg text-left">☕ POS Kasir</button>
+            <button onclick="tab('music');toggleMobile()" class="p-2 bg-slate-800 rounded-lg text-left">🎤 Studio Musik</button>
+            <button onclick="tab('profile');toggleMobile()" class="p-2 bg-slate-800 rounded-lg text-left">👩‍🎓 Profil</button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 pb-16">
+
+        <section id="tab-game" class="tab-sec">
+            <div class="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-pink-500/30">
+                <div class="flex flex-wrap justify-between items-center gap-3 bg-slate-950 p-3 rounded-xl mb-4">
+                    <div>
+                        <h2 class="text-lg font-black text-white">☕ Cefada Cafe Rush Game</h2>
+                        <p class="text-[11px] text-slate-400">Racik pesanan & hitung kembalian pembeli!</p>
+                    </div>
+                    <div class="flex gap-2 text-xs font-bold">
+                        <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-amber-500/40 text-amber-300">💰 <span id="gm-money">Rp 0</span></div>
+                        <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-cyan-500/40 text-cyan-300">⭐ <span id="gm-score">0</span></div>
+                        <button onclick="initGame()" class="btn-act bg-pink-600 hover:bg-pink-700 text-white px-3 py-1.5 rounded-lg"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <div class="lg:col-span-7 flex flex-col gap-4">
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                            <div class="flex justify-between text-xs font-bold mb-1">
+                                <span class="text-pink-400">Antrean Pembeli</span>
+                                <span id="gm-timer" class="text-emerald-400">Kesabaran: 100%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-3">
+                                <div id="gm-bar" class="bg-emerald-400 h-full w-full transition-all duration-300"></div>
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-900 p-3 rounded-lg">
+                                <div id="gm-avatar" class="text-4xl">👩‍💼</div>
+                                <div class="flex-1 text-xs">
+                                    <span id="gm-cust-name" class="font-extrabold text-purple-300">Pelanggan</span>
+                                    <div id="gm-order-badges" class="flex flex-wrap gap-1 my-1"></div>
+                                    <div class="flex justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800">
+                                        <span>Total: <strong id="gm-cust-total" class="text-amber-300">Rp 0</strong></span>
+                                        <span>Bayar Cash: <strong id="gm-cust-cash" class="text-cyan-300">Rp 0</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                            <span class="text-xs font-bold text-cyan-400 block mb-2">Racik Menu Dapur:</span>
+                            <div class="grid grid-cols-4 gap-2 text-center text-xs">
+                                <button onclick="addGameRecipe('coffee')" class="btn-act bg-slate-900 p-2 rounded-lg border border-pink-500/30">☕<br><strong class="block text-[10px]">Espresso</strong><span class="text-[9px] text-amber-300">15rb</span></button>
+                                <button onclick="addGameRecipe('boba')" class="btn-act bg-slate-900 p-2 rounded-lg border border-purple-500/30">🧋<br><strong class="block text-[10px]">Boba Tea</strong><span class="text-[9px] text-amber-300">20rb</span></button>
+                                <button onclick="addGameRecipe('cake')" class="btn-act bg-slate-900 p-2 rounded-lg border border-yellow-500/30">🍰<br><strong class="block text-[10px]">Cake</strong><span class="text-[9px] text-amber-300">25rb</span></button>
+                                <button onclick="addGameRecipe('ramen')" class="btn-act bg-slate-900 p-2 rounded-lg border border-emerald-500/30">🍜<br><strong class="block text-[10px]">Ramen</strong><span class="text-[9px] text-amber-300">18rb</span></button>
+                            </div>
+                            <div class="mt-3 bg-slate-900 p-2 rounded-lg flex justify-between items-center text-xs">
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">Isi Baki Disiapkan:</span>
+                                    <div id="gm-tray" class="flex flex-wrap gap-1 mt-0.5 min-h-[20px]"><span class="text-[10px] text-slate-500 italic">Baki kosong</span></div>
+                                </div>
+                                <button onclick="clearGameTray()" class="text-[10px] text-red-400 font-bold border border-red-500/30 px-2 py-0.5 rounded">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-pink-500/30 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-800 mb-3 text-xs">
+                                <span class="font-extrabold text-amber-400"><i class="fa-solid fa-calculator"></i> Mesin Kasir</span>
+                                <span class="text-[10px] text-slate-400">Input Kembalian</span>
+                            </div>
+                            <div class="bg-slate-900 p-2 rounded-lg text-xs mb-3 space-y-1">
+                                <div class="flex justify-between text-slate-400"><span>Target Kembalian:</span><strong id="gm-target-change" class="text-emerald-400">Rp 0</strong></div>
+                                <div class="flex justify-between items-center pt-1 border-t border-slate-800">
+                                    <span class="text-pink-300">Input Kamu:</span>
+                                    <input type="text" id="gm-input-change" readonly value="Rp 0" class="w-28 text-right bg-slate-950 text-cyan-300 font-bold px-2 py-0.5 rounded border border-cyan-500/30">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-1.5 text-xs font-bold mb-3">
+                                <button onclick="addGameChange(5000)" class="btn-act bg-slate-900 py-2 rounded border border-slate-800 text-emerald-300">+5rb</button>
+                                <button onclick="addGameChange(10000)" class="btn-act bg-slate-900 py-2 rounded border border-slate-800 text-emerald-300">+10rb</button>
+                                <button onclick="addGameChange(20000)" class="btn-act bg-slate-900 py-2 rounded border border-slate-800 text-emerald-300">+20rb</button>
+                                <button onclick="addGameChange(1000)" class="btn-act bg-slate-900 py-2 rounded border border-slate-800 text-slate-300">+1rb</button>
+                                <button onclick="addGameChange(2000)" class="btn-act bg-slate-900 py-2 rounded border border-slate-800 text-slate-300">+2rb</button>
+                                <button onclick="clearGameChange()" class="btn-act bg-red-900/40 text-red-300 py-2 rounded border border-red-500/30">Clear</button>
+                            </div>
+                        </div>
+                        <button onclick="submitGame()" class="btn-act w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl text-xs"><i class="fa-solid fa-bell-concierge"></i> SERAHKAN PESANAN</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-pos" class="tab-sec hidden">
+            <div class="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-emerald-500/30">
+                <div class="flex justify-between items-center mb-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <h2 class="text-base font-black text-white flex items-center gap-2"><i class="fa-solid fa-cash-register text-emerald-400"></i> POS Kasir Real</h2>
+                    <span class="text-xs text-emerald-400 font-bold">Kasir: Zahra Fitria</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <div class="lg:col-span-7">
+                        <div id="pos-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto max-h-[380px] p-1"></div>
+                    </div>
+                    <div class="lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-800 mb-2 text-xs font-bold">
+                                <span>Keranjang</span>
+                                <button onclick="clearPosCart()" class="text-red-400 text-[10px]">Clear</button>
+                            </div>
+                            <input type="text" id="pos-cust" placeholder="Nama Meja / Pelanggan..." class="w-full text-xs p-2 rounded-lg bg-slate-900 border border-slate-800 text-white mb-2">
+                            <div id="pos-cart-list" class="space-y-1.5 overflow-y-auto max-h-[160px] pr-1"></div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-800 space-y-1 text-xs">
+                            <div class="flex justify-between text-slate-400"><span>Total:</span><strong id="pos-total" class="text-emerald-400">Rp 0</strong></div>
+                            <button onclick="openPosModal()" class="btn-act w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-2.5 rounded-xl mt-2 text-xs">Bayar & Struk</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-music" class="tab-sec hidden">
+            <div class="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-pink-500/30 text-center">
+                <h2 class="text-xl font-black text-white">🎤 Studio Piano & Sound Live</h2>
+                <p class="text-xs text-slate-400 mb-4">Hobi Zahra Fitria: Bernyanyi & Bermain Musik 🎵</p>
+
+                <div class="max-w-md mx-auto bg-slate-950 p-4 rounded-xl border border-slate-800 mb-4">
+                    <div id="music-note-txt" class="text-xs font-bold text-pink-300 mb-3">Tekan nada piano untuk membunyikan nada!</div>
+                    <div class="flex gap-1 justify-center h-24">
+                        <button onclick="playNote(261.63,'Do')" class="btn-act bg-white hover:bg-pink-100 text-slate-950 font-black flex-1 rounded-b-lg border flex items-end justify-center pb-2 text-xs">Do</button>
+                        <button onclick="playNote(293.66,'Re')" class="btn-act bg-white hover:bg-pink-100 text-slate-950 font-black flex-1 rounded-b-lg border flex items-end justify-center pb-2 text-xs">Re</button>
+                        <button onclick="playNote(329.63,'Mi')" class="btn-act bg-white hover:bg-pink-100 text-slate-950 font-black flex-1 rounded-b-lg border flex items-end justify-center pb-2 text-xs">Mi</button>
+                        <button onclick="playNote(349.23,'Fa')" class="btn-act bg-white hover:bg-pink-100 text-slate-950 font-black flex-1 rounded-b-lg border flex items-end justify-center pb-2 text-xs">Fa</button>
+                        <button onclick="playNote(392.00,'Sol')" class="btn-act bg-white hover:bg-pink-100 text-slate-950 font-black flex-1 rounded-b-lg border flex items-end justify-center pb-2 text-xs">Sol</button>
+                        <button onclick="playNote(440.00,'La')" class="btn-act bg-white hover:bg-pink-100 text-slate-950 font-black flex-1 rounded-b-lg border flex items-end justify-center pb-2 text-xs">La</button>
+                        <button onclick="playNote(493.88,'Si')" class="btn-act bg-white hover:bg-pink-100 text-slate-950 font-black flex-1 rounded-b-lg border flex items-end justify-center pb-2 text-xs">Si</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-profile" class="tab-sec hidden">
+            <div class="bg-slate-900 p-6 rounded-2xl border border-cyan-500/30 flex flex-col md:flex-row items-center gap-6">
+                <div class="relative w-40 h-40 rounded-2xl p-1 bg-gradient-to-tr from-pink-500 via-amber-400 to-cyan-400">
+                    <img id="main-img" src="https://webschool.id/siswa/uploads/siswa_1788926230_219a3380.jpg" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://placehold.co/300/FF69B4/FFF?text=Zahra'">
+                </div>
+                <div class="flex-1 text-center md:text-left space-y-2">
+                    <span class="bg-cyan-500/20 text-cyan-300 text-[10px] font-black px-2.5 py-1 rounded-full border border-cyan-500/30">BIODATA SISWI</span>
+                    <h2 class="text-2xl font-black text-white">ZAHRA FITRIA</h2>
+                    <p class="text-xs text-slate-300">SMK CEFADA • Kejuruan RPL • Kelas XI.B</p>
+
+                    <div class="flex flex-wrap gap-1.5 justify-center md:justify-start pt-2">
+                        <span class="bg-red-900/40 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/30">Laravel</span>
+                        <span class="bg-indigo-900/40 text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-500/30">PHP</span>
+                        <span class="bg-cyan-900/40 text-cyan-300 text-[10px] font-bold px-2 py-0.5 rounded border border-cyan-500/30">MySQL</span>
+                        <span class="bg-blue-900/40 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-500/30">CSS & HTML</span>
+                    </div>
+
+                    <div class="pt-3">
+                        <a href="https://github.com/zahfarfitria-bit/Zahrafitria-" target="_blank" class="btn-act inline-flex items-center gap-2 bg-white text-slate-950 font-black text-xs px-4 py-2 rounded-xl">
+                            <i class="fa-brands fa-github text-sm"></i> Repositori GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal POS Bayar -->
+    <div id="pos-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 w-full max-w-xs rounded-2xl p-5 border border-emerald-500/30 relative text-xs">
+            <button onclick="closePosModal()" class="absolute top-3 right-3 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-black text-white mb-2">💳 Bayar POS</h3>
+            <p id="pos-modal-tot" class="text-base font-black text-emerald-400 bg-slate-950 p-2 rounded text-center mb-3">Rp 0</p>
+            <label class="block text-slate-300 mb-1">Uang Tunai:</label>
+            <input type="number" id="pos-cash-in" placeholder="Contoh: 50000" class="w-full p-2 bg-slate-950 border border-slate-800 rounded text-white font-bold mb-3">
+            <button onclick="processPos()" class="btn-act w-full bg-emerald-500 text-slate-950 font-black py-2 rounded-xl">Proses & Struk</button>
+        </div>
+    </div>
+
+    <!-- Modal Struk Printable -->
+    <div id="rec-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div id="receipt-print" class="bg-white text-slate-900 w-full max-w-xs rounded-xl p-5 font-mono text-[11px] space-y-2">
+            <div class="text-center pb-2 border-b border-dashed border-slate-300">
+                <strong class="block text-sm">☕ CEFADA CAFE POS</strong>
+                <span>Kasir: Zahra Fitria (XI.B RPL)</span>
+            </div>
+            <div id="rec-items" class="py-1 border-b border-dashed border-slate-300 space-y-1"></div>
+            <div class="text-right font-bold space-y-0.5">
+                <div>Total: <span id="rec-tot">Rp 0</span></div>
+                <div>Bayar: <span id="rec-paid">Rp 0</span></div>
+                <div>Kembali: <span id="rec-change">Rp 0</span></div>
+            </div>
+            <div class="pt-2 flex gap-2 font-sans">
+                <button onclick="window.print()" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded">Cetak</button>
+                <button onclick="closeRecModal()" class="bg-slate-200 text-slate-800 font-bold px-3 py-1.5 rounded">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toast(msg, type='info') {
+            const b = document.getElementById('toast-box'), t = document.createElement('div');
+            t.className = `px-3 py-2 rounded-xl text-xs font-bold border shadow-xl bg-slate-800 text-white border-slate-700`;
+            t.innerText = msg; b.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+
+        function tab(id) {
+            document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-act'));
+            document.getElementById(`tab-${id}`).classList.remove('hidden');
+            document.getElementById(`nav-${id}`).classList.add('tab-act');
+        }
+
+        function toggleMobile() { document.getElementById('mob-nav').classList.toggle('hidden'); }
+
+        const actx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(f, dur=0.2) {
+            try {
+                const o = actx.createOscillator(), g = actx.createGain();
+                o.frequency.value = f; g.gain.setValueAtTime(0.1, actx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+                o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + dur);
+            } catch(e) {}
+        }
+        function playNote(f, n) { playTone(f, 0.3); document.getElementById('music-note-txt').innerText = `🎵 Nada Piano: ${n} (${f}Hz)`; }
+
+        const items = [
+            { id: 'coffee', name: 'Espresso', price: 15000, icon: '☕' },
+            { id: 'boba', name: 'Boba Tea', price: 20000, icon: '🧋' },
+            { id: 'cake', name: 'Slice Cake', price: 25000, icon: '🍰' },
+            { id: 'ramen', name: 'Ramen', price: 18000, icon: '🍜' }
+        ];
+
+        let gMoney=0, gScore=0, activeCust=null, preparedTray=[], changeEntered=0, gTimer=null, pTime=100;
+
+        function initGame() {
+            gMoney=0; gScore=0; updateStats(); spawnCust();
+        }
+
+        function updateStats() {
+            document.getElementById('gm-money').innerText = `Rp ${gMoney.toLocaleString('id-ID')}`;
+            document.getElementById('gm-score').innerText = gScore;
+        }
+
+        function spawnCust() {
+            clearInterval(gTimer); preparedTray=[]; changeEntered=0; renderTray(); renderChange();
+            const cItem = items[Math.floor(Math.random() * items.length)];
+            const cash = Math.ceil((cItem.price + 5000) / 10000) * 10000;
+            activeCust = { item: cItem, total: cItem.price, cash: cash, targetChange: cash - cItem.price };
+
+            document.getElementById('gm-cust-total').innerText = `Rp ${activeCust.total.toLocaleString('id-ID')}`;
+            document.getElementById('gm-cust-cash').innerText = `Rp ${activeCust.cash.toLocaleString('id-ID')}`;
+            document.getElementById('gm-target-change').innerText = `Rp ${activeCust.targetChange.toLocaleString('id-ID')}`;
+            document.getElementById('gm-order-badges').innerHTML = `<span class="bg-purple-900/60 px-2 py-0.5 rounded text-purple-200 border border-purple-500/30">${cItem.icon} ${cItem.name}</span>`;
+
+            pTime = 100;
+            gTimer = setInterval(() => {
+                pTime -= 2.5;
+                document.getElementById('gm-bar').style.width = `${pTime}%`;
+                document.getElementById('gm-timer').innerText = `Kesabaran: ${Math.max(0, Math.round(pTime))}%`;
+                if (pTime <= 0) {
+                    clearInterval(gTimer);
+                    toast("😡 Pembeli Kabur Karena Lama!", "error");
+                    gScore = Math.max(0, gScore - 10); updateStats(); spawnCust();
+                }
+            }, 600);
+        }
+
+        function addGameRecipe(id) {
+            const it = items.find(i => i.id === id);
+            if (it) { preparedTray.push(it); playTone(500); renderTray(); }
+        }
+        function clearGameTray() { preparedTray = []; renderTray(); }
+        function renderTray() {
+            const el = document.getElementById('gm-tray'); el.innerHTML = '';
+            if(!preparedTray.length) { el.innerHTML = '<span class="text-[10px] text-slate-500 italic">Baki kosong</span>'; return; }
+            preparedTray.forEach(i => el.innerHTML += `<span class="bg-emerald-900/60 px-1.5 py-0.5 rounded text-emerald-200 border border-emerald-500/30">${i.icon} ${i.name}</span>`);
+        }
+
+        function addGameChange(amt) { changeEntered += amt; playTone(400); renderChange(); }
+        function clearGameChange() { changeEntered = 0; renderChange(); }
+        function renderChange() { document.getElementById('gm-input-change').value = `Rp ${changeEntered.toLocaleString('id-ID')}`; }
+
+        function submitGame() {
+            if(!activeCust) return;
+            const itemMatch = preparedTray.length === 1 && preparedTray[0].id === activeCust.item.id;
+            const changeMatch = changeEntered === activeCust.targetChange;
+
+            if(!itemMatch) { toast("❌ Pesanan di Baki Salah!", "error"); return; }
+            if(!changeMatch) { toast("❌ Kembalian Salah!", "error"); return; }
+
+            clearInterval(gTimer);
+            gMoney += activeCust.total; gScore += 25; updateStats();
+            playTone(800, 0.3);
+            if(typeof confetti === 'function') confetti({ particleCount: 30 });
+            toast("🎉 Sukses Melayani Pembeli! (+25 Skor)", "success");
+            spawnCust();
+        }
+
+        let posCart = [];
+        function renderPos() {
+            const g = document.getElementById('pos-grid'); g.innerHTML = '';
+            items.forEach(it => {
+                g.innerHTML += `
+                    <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between text-xs">
+                        <div class="text-center mb-1"><span class="text-2xl">${it.icon}</span><h4 class="font-bold text-white text-[11px]">${it.name}</h4><span class="text-emerald-400 font-extrabold text-[10px]">Rp ${it.price.toLocaleString('id-ID')}</span></div>
+                        <button onclick="addPos(${it.id})" class="btn-act bg-emerald-500 text-slate-950 font-black py-1 rounded-lg text-[10px]">+ Tambah</button>
+                    </div>`;
+            });
+        }
+
+        function addPos(id) {
+            const it = items.find(i => i.id === id);
+            const ex = posCart.find(c => c.id === id);
+            if(ex) ex.qty++; else posCart.push({...it, qty: 1});
+            playTone(600); renderCart();
+        }
+
+        function clearPosCart() { posCart = []; renderCart(); }
+        function renderCart() {
+            const list = document.getElementById('pos-cart-list'); list.innerHTML = '';
+            let tot = 0;
+            posCart.forEach(c => {
+                tot += c.price * c.qty;
+                list.innerHTML += `<div class="flex justify-between items-center bg-slate-900 p-1.5 rounded text-[11px]"><span>${c.icon} ${c.name} x${c.qty}</span><strong class="text-emerald-400">Rp ${(c.price*c.qty).toLocaleString('id-ID')}</strong></div>`;
+            });
+            document.getElementById('pos-total').innerText = `Rp ${tot.toLocaleString('id-ID')}`;
+        }
+
+        function openPosModal() {
+            if(!posCart.length) { toast("Keranjang kosong!", "warning"); return; }
+            const tot = posCart.reduce((a,c) => a + (c.price*c.qty), 0);
+            document.getElementById('pos-modal-tot').innerText = `Rp ${tot.toLocaleString('id-ID')}`;
+            document.getElementById('pos-modal').classList.remove('hidden');
+        }
+        function closePosModal() { document.getElementById('pos-modal').classList.add('hidden'); }
+
+        function processPos() {
+            const tot = posCart.reduce((a,c) => a + (c.price*c.qty), 0);
+            const cash = parseInt(document.getElementById('pos-cash-in').value) || 0;
+            if(cash < tot) { toast("Uang tunai kurang!", "error"); return; }
+
+            document.getElementById('rec-tot').innerText = `Rp ${tot.toLocaleString('id-ID')}`;
+            document.getElementById('rec-paid').innerText = `Rp ${cash.toLocaleString('id-ID')}`;
+            document.getElementById('rec-change').innerText = `Rp ${(cash - tot).toLocaleString('id-ID')}`;
+
+            const rItems = document.getElementById('rec-items'); rItems.innerHTML = '';
+            posCart.forEach(c => rItems.innerHTML += `<div class="flex justify-between"><span>${c.name} x${c.qty}</span><span>Rp ${(c.price*c.qty).toLocaleString('id-ID')}</span></div>`);
+
+            closePosModal();
+            document.getElementById('rec-modal').classList.remove('hidden');
+            clearPosCart();
+        }
+        function closeRecModal() { document.getElementById('rec-modal').classList.add('hidden'); }
+
+        window.onload = function() {
+            initGame(); renderPos();
+        };
+    </script>
+</body>
+</html>
+
