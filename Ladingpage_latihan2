@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌳 Pohon Berhitung Ajaib • Game Edukasi Anak oleh Zahra Fitria</title>
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Confetti library for rewards -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sky: { 100: '#E0F2FE', 300: '#7DD3FC', 400: '#38BDF8', 500: '#0EA5E9' },
+                        apple: { red: '#FF4D4D', green: '#10B981', yellow: '#FBBF24' },
+                        wood: { light: '#D97706', dark: '#92400E' }
+                    },
+                    fontFamily: {
+                        kid: ['Fredoka', 'Comic Sans MS', 'Chalkboard SE', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Fredoka', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(180deg, #BAE6FD 0%, #E0F2FE 60%, #86EFAC 100%);
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        .apple-wobble {
+            animation: wobble 2s ease-in-out infinite;
+        }
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-8deg) scale(1.05); }
+            75% { transform: rotate(8deg) scale(1.05); }
+        }
+
+        .tree-bounce {
+            animation: treeBounce 3s ease-in-out infinite;
+        }
+        @keyframes treeBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6deg); }
+        }
+
+        .fruit-drop {
+            animation: dropToBasket 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes dropToBasket {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(180px) scale(0.8); opacity: 0; }
+        }
+
+        .btn-kid {
+            box-shadow: 0px 6px 0px rgba(0,0,0,0.15);
+            transition: all 0.15s ease;
+        }
+        .btn-kid:active {
+            transform: translateY(4px);
+            box-shadow: 0px 2px 0px rgba(0,0,0,0.15);
+        }
+
+        .cloud-bg {
+            animation: floatCloud 25s linear infinite;
+        }
+        @keyframes floatCloud {
+            from { transform: translateX(-150px); }
+            to { transform: translateX(100vw); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative text-slate-800">
+
+    <div class="fixed top-4 left-0 w-full pointer-events-none overflow-hidden z-0 opacity-80">
+        <div class="cloud-bg text-white/80 text-6xl space-x-20 flex items-center">
+            <i class="fa-solid fa-cloud"></i>
+            <i class="fa-solid fa-cloud text-4xl"></i>
+            <i class="fa-solid fa-cloud text-7xl"></i>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <header class="relative z-10 p-3 sm:p-4 max-w-5xl mx-auto w-full">
+        <div class="bg-white/90 backdrop-blur-md rounded-3xl p-3 sm:p-4 shadow-xl border-4 border-white flex flex-wrap items-center justify-between gap-3">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-400 to-green-500 flex items-center justify-center text-white text-2xl shadow-md tree-bounce">
+                    🌳
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold text-emerald-800 leading-tight">POHON BERHITUNG AJAIB</h1>
+                    <p class="text-xs text-emerald-600 font-semibold">Game Belajar Matematika Anak • <span class="text-amber-600 font-bold">Zahra Fitria</span></p>
+                </div>
+            </div>
+
+            <!-- Score / Stars & Audio -->
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-100 border-2 border-amber-300 px-3 py-1.5 rounded-2xl flex items-center gap-2 text-amber-700 font-bold text-sm shadow-inner">
+                    <span class="text-xl">⭐</span>
+                    <span id="star-count" class="text-lg">0</span> Bintang
+                </div>
+
+                <button onclick="toggleAudio()" id="btn-audio" class="w-10 h-10 rounded-2xl bg-sky-100 border-2 border-sky-300 text-sky-600 flex items-center justify-center text-lg hover:bg-sky-200 transition shadow-sm" title="Mute/Unmute Suara">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 max-w-5xl mx-auto w-full px-3 sm:px-4 flex-1 flex flex-col gap-4">
+
+        <!-- Student Developer Badge -->
+        <div class="bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 rounded-3xl p-3 sm:p-4 shadow-lg text-white border-4 border-white flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <img src="https://webschool.id/siswa/uploads/siswa_1788926230_219a3380.jpg" 
+                     onerror="this.src='https://placehold.co/120/FF4D4D/FFF?text=Zahra'" 
+                     class="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-md">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-sm text-slate-900">Zahra Fitria</span>
+                        <span class="bg-white/30 text-xs px-2 py-0.5 rounded-full font-bold">SMK Cefada • XI.B RPL</span>
+                    </div>
+                    <p class="text-xs text-amber-950 font-medium">Hobi: Bernyanyi 🎤 & Pemrograman Web 💻</p>
+                </div>
+            </div>
+            <a href="https://github.com/zahfarfitria-bit/Zahrafitria-" target="_blank" class="bg-white text-orange-600 hover:bg-orange-50 px-3 py-1.5 rounded-2xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-brands fa-github text-sm"></i> GitHub Proyek
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+            <button onclick="switchMode('pick')" id="tab-pick" class="mode-tab btn-kid bg-emerald-500 hover:bg-emerald-600 text-white p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center gap-1 border-2 border-emerald-300">
+                <span class="text-2xl">🍎</span>
+                <span>1. Petik Buah</span>
+            </button>
+            <button onclick="switchMode('add')" id="tab-add" class="mode-tab btn-kid bg-sky-400 hover:bg-sky-500 text-white p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center gap-1 border-2 border-sky-200">
+                <span class="text-2xl">➕</span>
+                <span>2. Penjumlahan</span>
+            </button>
+            <button onclick="switchMode('sub')" id="tab-sub" class="mode-tab btn-kid bg-pink-400 hover:bg-pink-500 text-white p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center gap-1 border-2 border-pink-200">
+                <span class="text-2xl">➖</span>
+                <span>3. Pengurangan</span>
+            </button>
+            <button onclick="switchMode('quiz')" id="tab-quiz" class="mode-tab btn-kid bg-purple-400 hover:bg-purple-500 text-white p-3 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center gap-1 border-2 border-purple-200">
+                <span class="text-2xl">⚡</span>
+                <span>4. Kuis Cepat</span>
+            </button>
+        </div>
+
+        <div class="bg-white/80 backdrop-blur-md rounded-3xl p-4 sm:p-6 shadow-xl border-4 border-white flex-1 flex flex-col items-center justify-between gap-4 relative min-h-[420px]">
+            
+            <!-- Instruction Prompt Banner -->
+            <div class="bg-amber-100 border-2 border-amber-300 text-amber-900 rounded-2xl px-4 py-2 text-center shadow-sm w-full max-w-xl">
+                <span class="text-xs uppercase font-bold text-amber-600 tracking-wider">Tugas Pohon Ajaib:</span>
+                <h2 id="instruction-text" class="text-base sm:text-xl font-extrabold text-amber-900 mt-0.5">
+                    Petik 5 buah apel di pohon ke dalam keranjang!
+                </h2>
+            </div>
+
+            <div id="tree-container" class="relative w-full max-w-md h-64 sm:h-72 flex items-end justify-center">
+                
+                <!-- SVG Cute Tree Character -->
+                <svg viewBox="0 0 300 300" class="w-64 sm:w-80 h-auto drop-shadow-xl tree-bounce">
+                    <!-- Trunk -->
+                    <path d="M125 180 C120 230, 100 270, 80 290 L220 290 C200 270, 180 230, 175 180 Z" fill="#92400E" />
+                    <!-- Tree Face -->
+                    <circle cx="138" cy="230" r="4" fill="#451A03" />
+                    <circle cx="162" cy="230" r="4" fill="#451A03" />
+                    <path d="M142 242 Q150 250 158 242" stroke="#451A03" stroke-width="3" fill="none" stroke-linecap="round" />
+                    <circle cx="132" cy="236" r="3" fill="#F87171" opacity="0.6" />
+                    <circle cx="168" cy="236" r="3" fill="#F87171" opacity="0.6" />
+                    <!-- Green Foliage Leaves -->
+                    <circle cx="150" cy="110" r="85" fill="#10B981" />
+                    <circle cx="100" cy="130" r="65" fill="#059669" />
+                    <circle cx="200" cy="130" r="65" fill="#059669" />
+                    <circle cx="150" cy="70" r="60" fill="#34D399" />
+                </svg>
+
+                <!-- Interactive Fruit Container overlay on Tree Leaves -->
+                <div id="fruit-tree-overlay" class="absolute top-2 inset-x-0 h-44 flex flex-wrap items-center justify-center p-4 gap-3 z-20">
+                    <!-- Fruits generated dynamically via JS -->
+                </div>
+
+                <!-- Basket Container at Bottom -->
+                <div id="basket-box" class="absolute bottom-0 right-4 sm:right-10 bg-amber-700 border-4 border-amber-900 rounded-b-2xl rounded-t-lg p-2 text-white font-bold text-xs flex flex-col items-center shadow-lg z-10 w-24 sm:w-28">
+                    <span class="text-amber-200 text-[10px]">KERANJANG</span>
+                    <div class="flex items-center gap-1 text-sm sm:text-base">
+                        <span>🧺</span>
+                        <span id="basket-count" class="text-yellow-300 font-extrabold">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="answer-panel" class="w-full max-w-xl flex flex-col items-center gap-3">
+                
+                <!-- Action Buttons (Submit/Reset) for Pick Mode -->
+                <div id="pick-controls" class="flex gap-3 w-full justify-center">
+                    <button onclick="checkPickAnswer()" class="btn-kid bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-6 py-2.5 rounded-2xl text-sm sm:text-base flex items-center gap-2 border-2 border-emerald-300">
+                        <i class="fa-solid fa-check"></i> SELESAI MEMETIK
+                    </button>
+                    <button onclick="resetCurrentStage()" class="btn-kid bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2.5 rounded-2xl text-sm border-2 border-slate-300">
+                        <i class="fa-solid fa-rotate-left"></i> Ulang
+                    </button>
+                </div>
+
+                <!-- Number Options Pad for Math / Quiz Modes -->
+                <div id="math-options" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
+                    <!-- Number option buttons dynamically injected here -->
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-3xl p-4 shadow-lg text-white border-4 border-white space-y-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🎤</span>
+                    <div>
+                        <h3 class="font-bold text-sm">Studio Lagu & Piano Zahra</h3>
+                        <p class="text-[11px] text-purple-200">Tekan tombol piano di bawah untuk bernyanyi nada musik!</p>
+                    </div>
+                </div>
+                <span class="text-xs bg-white/20 px-2 py-1 rounded-full font-bold">Hobi Zahra: Bernyanyi</span>
+            </div>
+
+            <!-- Interactive Piano Keys -->
+            <div class="grid grid-cols-7 gap-1.5 pt-1">
+                <button onclick="playPianoNote(261.63, 'Do')" class="btn-kid bg-white text-purple-900 py-3 rounded-xl font-bold text-xs hover:bg-purple-100 flex flex-col items-center">
+                    <span>Do</span><span class="text-[10px] text-slate-400">C</span>
+                </button>
+                <button onclick="playPianoNote(293.66, 'Re')" class="btn-kid bg-white text-purple-900 py-3 rounded-xl font-bold text-xs hover:bg-purple-100 flex flex-col items-center">
+                    <span>Re</span><span class="text-[10px] text-slate-400">D</span>
+                </button>
+                <button onclick="playPianoNote(329.63, 'Mi')" class="btn-kid bg-white text-purple-900 py-3 rounded-xl font-bold text-xs hover:bg-purple-100 flex flex-col items-center">
+                    <span>Mi</span><span class="text-[10px] text-slate-400">E</span>
+                </button>
+                <button onclick="playPianoNote(349.23, 'Fa')" class="btn-kid bg-white text-purple-900 py-3 rounded-xl font-bold text-xs hover:bg-purple-100 flex flex-col items-center">
+                    <span>Fa</span><span class="text-[10px] text-slate-400">F</span>
+                </button>
+                <button onclick="playPianoNote(392.00, 'Sol')" class="btn-kid bg-white text-purple-900 py-3 rounded-xl font-bold text-xs hover:bg-purple-100 flex flex-col items-center">
+                    <span>Sol</span><span class="text-[10px] text-slate-400">G</span>
+                </button>
+                <button onclick="playPianoNote(440.00, 'La')" class="btn-kid bg-white text-purple-900 py-3 rounded-xl font-bold text-xs hover:bg-purple-100 flex flex-col items-center">
+                    <span>La</span><span class="text-[10px] text-slate-400">A</span>
+                </button>
+                <button onclick="playPianoNote(493.88, 'Si')" class="btn-kid bg-white text-purple-900 py-3 rounded-xl font-bold text-xs hover:bg-purple-100 flex flex-col items-center">
+                    <span>Si</span><span class="text-[10px] text-slate-400">B</span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="relative z-10 py-3 text-center text-xs text-slate-600 font-medium">
+        © 2026 Game Pohon Berhitung • Karya <strong class="text-emerald-700">Zahra Fitria</strong> (SMK Cefada Class XI.B RPL)
+    </footer>
+
+    <script>
+        // Web Audio Context Synthesizer for sound effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let soundOn = true;
+
+        function playBeep(freq, type='sine', dur=0.1) {
+            if (!soundOn) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e){}
+        }
+
+        function playPianoNote(freq, noteName) {
+            playBeep(freq, 'triangle', 0.3);
+            showToast(`🎵 Nada: ${noteName}`, 'info');
+        }
+
+        function playSuccessSound() {
+            playBeep(523, 'triangle', 0.1);
+            setTimeout(() => playBeep(659, 'triangle', 0.1), 90);
+            setTimeout(() => playBeep(783, 'triangle', 0.2), 180);
+        }
+
+        function playErrorSound() {
+            playBeep(220, 'sawtooth', 0.15);
+            setTimeout(() => playBeep(180, 'sawtooth', 0.25), 100);
+        }
+
+        function toggleAudio() {
+            soundOn = !soundOn;
+            document.getElementById('btn-audio').innerHTML = soundOn ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark text-red-500"></i>';
+            showToast(soundOn ? "🔊 Suara Diaktifkan" : "🔇 Suara Dimatikan");
+        }
+
+        function showToast(msg, type='info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold bg-white text-slate-800 shadow-xl border-2 transition transform translate-y-2 opacity-0 flex items-center gap-2`;
+            if (type === 'success') toast.classList.add('border-emerald-400', 'text-emerald-700');
+            if (type === 'error') toast.classList.add('border-red-400', 'text-red-700');
+            if (type === 'info') toast.classList.add('border-sky-400', 'text-sky-700');
+            toast.innerText = msg;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 250);
+            }, 2000);
+        }
+
+        let gameState = {
+            mode: 'pick', // 'pick', 'add', 'sub', 'quiz'
+            stars: 0,
+            targetNumber: 5,
+            basketCount: 0,
+            treeFruitCount: 8,
+            currentCorrectAnswer: 0
+        };
+
+        function addStars(num) {
+            gameState.stars += num;
+            document.getElementById('star-count').innerText = gameState.stars;
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+            }
+        }
+
+        function switchMode(mode) {
+            gameState.mode = mode;
+            document.querySelectorAll('.mode-tab').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-amber-300');
+            });
+            document.getElementById(`tab-${mode}`).classList.add('ring-4', 'ring-amber-300');
+            
+            playBeep(600, 'sine', 0.08);
+            resetCurrentStage();
+        }
+
+        function resetCurrentStage() {
+            gameState.basketCount = 0;
+            document.getElementById('basket-count').innerText = 0;
+
+            const pickControls = document.getElementById('pick-controls');
+            const mathOptions = document.getElementById('math-options');
+
+            if (gameState.mode === 'pick') {
+                pickControls.classList.remove('hidden');
+                mathOptions.classList.add('hidden');
+                setupPickMode();
+            } else if (gameState.mode === 'add') {
+                pickControls.classList.add('hidden');
+                mathOptions.classList.remove('hidden');
+                setupAddMode();
+            } else if (gameState.mode === 'sub') {
+                pickControls.classList.add('hidden');
+                mathOptions.classList.remove('hidden');
+                setupSubMode();
+            } else if (gameState.mode === 'quiz') {
+                pickControls.classList.add('hidden');
+                mathOptions.classList.remove('hidden');
+                setupQuizMode();
+            }
+        }
+
+        function setupPickMode() {
+            gameState.targetNumber = Math.floor(Math.random() * 6) + 3; // 3 to 8
+            gameState.treeFruitCount = gameState.targetNumber + Math.floor(Math.random() * 3) + 1;
+            
+            document.getElementById('instruction-text').innerText = 
+                `Petik ${gameState.targetNumber} buah apel di pohon ke dalam keranjang!`;
+
+            renderTreeFruits(gameState.treeFruitCount, true);
+        }
+
+        function pickFruit(fruitEl) {
+            playBeep(800, 'sine', 0.08);
+            fruitEl.classList.add('fruit-drop');
+            setTimeout(() => {
+                fruitEl.remove();
+                gameState.basketCount++;
+                document.getElementById('basket-count').innerText = gameState.basketCount;
+            }, 300);
+        }
+
+        function checkPickAnswer() {
+            if (gameState.basketCount === gameState.targetNumber) {
+                playSuccessSound();
+                addStars(5);
+                showToast("🎉 Hore! Jumlah apel di keranjang pas!", "success");
+                setTimeout(setupPickMode, 1500);
+            } else {
+                playErrorSound();
+                showToast(`❌ Belum pas! Perintahnya petik ${gameState.targetNumber} buah apel. Yuk coba lagi!`, "error");
+            }
+        }
+
+        function setupAddMode() {
+            const num1 = Math.floor(Math.random() * 5) + 1;
+            const num2 = Math.floor(Math.random() * 5) + 1;
+            gameState.currentCorrectAnswer = num1 + num2;
+
+            document.getElementById('instruction-text').innerText = 
+                `Ada ${num1} apel merah dan ${num2} apel kuning. Berapa total seluruhnya?`;
+
+            renderTwoColorFruits(num1, num2);
+            renderMathOptionButtons(gameState.currentCorrectAnswer);
+        }
+
+        function setupSubMode() {
+            const num1 = Math.floor(Math.random() * 5) + 5; // 5 to 9
+            const num2 = Math.floor(Math.random() * 4) + 1; // 1 to 4
+            gameState.currentCorrectAnswer = num1 - num2;
+
+            document.getElementById('instruction-text').innerText = 
+                `Ada ${num1} apel di pohon, lalu dipetik ${num2} apel. Berapa sisa apel di pohon?`;
+
+            renderTreeFruits(num1, false);
+            renderMathOptionButtons(gameState.currentCorrectAnswer);
+        }
+
+        function setupQuizMode() {
+            const count = Math.floor(Math.random() * 9) + 1;
+            gameState.currentCorrectAnswer = count;
+
+            document.getElementById('instruction-text').innerText = 
+                `Hitung cepat! Ada berapa buah apel yang tumbuh di pohon?`;
+
+            renderTreeFruits(count, false);
+            renderMathOptionButtons(gameState.currentCorrectAnswer);
+        }
+
+        function renderTreeFruits(count, clickable=true) {
+            const overlay = document.getElementById('fruit-tree-overlay');
+            overlay.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const btn = document.createElement('button');
+                btn.className = `apple-wobble text-3xl sm:text-4xl hover:scale-125 transition transform ${clickable ? 'cursor-pointer' : 'cursor-default'}`;
+                btn.innerText = '🍎';
+                if (clickable) {
+                    btn.onclick = function() { pickFruit(this); };
+                }
+                overlay.appendChild(btn);
+            }
+        }
+
+        function renderTwoColorFruits(redCount, yellowCount) {
+            const overlay = document.getElementById('fruit-tree-overlay');
+            overlay.innerHTML = '';
+            for (let i = 0; i < redCount; i++) {
+                const span = document.createElement('span');
+                span.className = 'apple-wobble text-3xl sm:text-4xl';
+                span.innerText = '🍎';
+                overlay.appendChild(span);
+            }
+            for (let i = 0; i < yellowCount; i++) {
+                const span = document.createElement('span');
+                span.className = 'apple-wobble text-3xl sm:text-4xl';
+                span.innerText = '🍋';
+                overlay.appendChild(span);
+            }
+        }
+
+        function renderMathOptionButtons(correctVal) {
+            const optionsBox = document.getElementById('math-options');
+            optionsBox.innerHTML = '';
+
+            let choices = [correctVal];
+            while (choices.length < 4) {
+                let rand = Math.floor(Math.random() * 10) + 1;
+                if (!choices.includes(rand)) choices.push(rand);
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            choices.forEach(val => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-kid bg-amber-400 hover:bg-amber-500 text-amber-950 font-extrabold py-3 rounded-2xl text-xl sm:text-2xl border-2 border-amber-200 shadow-md transition flex items-center justify-center gap-1';
+                btn.innerHTML = `<span>${val}</span>`;
+                btn.onclick = () => checkMathOption(val);
+                optionsBox.appendChild(btn);
+            });
+        }
+
+        function checkMathOption(selectedVal) {
+            if (selectedVal === gameState.currentCorrectAnswer) {
+                playSuccessSound();
+                addStars(5);
+                showToast("🌟 Jawabanmu Benar! Hebat Sekali!", "success");
+                setTimeout(resetCurrentStage, 1500);
+            } else {
+                playErrorSound();
+                showToast("❌ Coba hitung sekali lagi ya!", "error");
+            }
+        }
+
+        window.onload = function() {
+            switchMode('pick');
+        };
+    </script>
+</body>
+</html>
+
